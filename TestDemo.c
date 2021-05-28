@@ -681,6 +681,34 @@ void test_MatrixPinv()
 	return;
 }
 
+////计算矩阵伪逆（svd）
+void test_MatrixPinv67()
+{
+    double a[6][7] = {
+            1,2,3,4,5,6,9,
+            5,6,7,8,9,9,93,
+            9,10,11,15,16,17,55,
+            13,14,15,16,17,18,66,
+            9,8,7,1,3,2,44,
+            88,22,66,33,11,44,11
+    };
+    double b[7][6];
+    double tol = 2.22e-15;
+    MatrixPinv((double *)a, 6, 7, tol,(double *)b);
+    printf("MatrixPinv(a):\n");
+//    int i, j;
+//    for (i = 0; i < 6; i++)
+//    {
+//        for (j = 0; j < 7; j++)
+//        {
+//            printf("%lf  ", b[i][j]);
+//        }
+//        printf("\n");
+//    }
+
+    return;
+}
+
 
 ////计算ee坐标系下的逆运动学
 void test_IKinBodyNR()

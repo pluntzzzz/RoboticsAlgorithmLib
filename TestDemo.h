@@ -41,6 +41,7 @@ extern "C" {
 	void test_MatrixT();
 	void test_MatrixMult();
 	void test_MatrixPinv();
+	void test_MatrixPinv67();
 	void test_IKinBodyNR();
 	void test_IKinSpaceNR();
 	void test_IKOnUR3();

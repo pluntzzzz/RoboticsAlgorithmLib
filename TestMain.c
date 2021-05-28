@@ -19,7 +19,7 @@ int main()
 
     //do stuff
 
-    test_LinePOInp();
+    test_MatrixPinv67();
 
     //end stuff
 
