@@ -44,9 +44,9 @@ extern "C" {
 	void test_MatrixPinv67();
 	void test_IKinBodyNR();
 	void test_IKinSpaceNR();
-    void test_HITEXOFKinSpace();
 	void test_IKOnUR3();
     void test_HITEXOFKinSpace();
+    void test_IKOnHITEXO();
     void test_IKOnHITEXO();
 	void test_RotToAxisAng();
 	void test_AxisAngToQuaternion();
