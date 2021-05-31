@@ -1223,10 +1223,6 @@ void FKinSpace(double M[4][4],int  JointNum,double *Slist, double *thetalist,dou
 		}
 		////把SE(3)转换为T4*4（矩阵指数）
 		MatrixExp6(se3mat, exp6);
-//        printf("T44:\n");
-//        for (i = 0; i < 4; i++) {
-//            printf("%lf %lf %lf %lf\n", exp6[i][0], exp6[i][1], exp6[i][2], exp6[i][3]);
-//        }
 
 		////初始姿态T	乘变换矩阵T2
 		Matrix4Mult(exp6, T, T2);

@@ -18,9 +18,15 @@ int main()
     gettimeofday(&start, NULL);
 
     //do stuff
-
-    test_FKinSpace();
-    test_HITEXOFKinSpace();
+    //test_IKinSpaceNR();
+    //test_HITEXOFKinSpace();
+    //test_IKOnUR3();
+    test_IKOnHITEXO();
+    //test_LinePOInp();
+//    test_HITse3ToVec1();
+//    test_HITse3ToVec2();
+    //test_HITLinePOInp();
+    //test_HITLinePOInp_IK();
 
     //end stuff
 

@@ -757,7 +757,7 @@ void test_IKOnUR3() {
     double eomg = 1.0E-4;
     double ev = 1.0E-3;
     double thetalist[6] = {0};
-    int maxiter = 20;
+    int maxiter = 20000;
     int ret = IKinSpaceNR(JointNum, (double *) Slist, M, T, thetalist0, eomg, ev, maxiter, thetalist);
     if (ret) {
         printf("IKinSpace error %d\n", ret);
@@ -772,119 +772,6 @@ void test_IKOnUR3() {
     return;
 }
 
-
-////给定初始姿态M，给定Slist（相当于给定DH表），再给定theta，计算转动theta后的正解T (相对笛卡尔原点)
-void test_HITEXOFKinSpace() {
-    int i;
-    double M[4][4] =
-            {
-                    1.0000, 0, 0, 613.3800,
-                    0, -0.8660, 0.5000, 154.9957,
-                    0, -0.5000, -0.8660, -485.9044,
-                    0, 0, 0, 1.0000,
-            };
-
-//    double M[4][4] = {
-//            1.0000, 0, 0, 613.3800,
-//            0, 1.0000, 0, 155,
-//            0, 0, 1.0000, -485.9044,
-//            0, 0, 0, 1.0000};
-
-//    double M[4][4] = {
-//            1.0000, 0, 0, 0,
-//            0, 1.0000, 0, 0,
-//            0, 0, 1.0000, 0,
-//            0, 0, 0, 1.0000};
-
-    int JoinNum = 6;
-//    double Slist[6][7] = {
-//            -1.0000, 0 - 0.5547, -1.0000, -0.5000, -0.5000, -0.5000,
-//            0, 0, 0, 0, 0, 0, 0,
-//            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
-//            0, 0, 277.4055, 0, -288.7071, -531.1871, -306.6900,
-//            0, 0, 264.1418, 0, -274.9030, -188.3030, -78.2246,
-//            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
-//    };
-
-    double Slist[6][7] = {
-            -1.0000, 0, -0.5547, -1.0000, -0.5000, -0.5000, -0.5000,
-            0, 0, 0, 0, 0, 0, 0,
-            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
-            0, 0, 277.4055, 0, -288.7071, -531.1871, -306.6900,
-            0, 0, 180.9318, 0, -188.3030, -188.3030, -118.7246,
-            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
-    };
-    //double thetalist[7] = {0,0,0,0,0,0,0};
-    double thetalist[7] = {0, 30 * PI /180, 0, -90 * PI / 180, 0, 0, 0};
-    printf("thetalist:\n");
-    for (i = 0; i < 7; i++) {
-        printf("%lf ", thetalist[i]);
-    }
-    printf("\n");
-    double T[4][4];
-    FKinSpace(M, JoinNum, (double *) Slist, thetalist, T);
-
-    printf("T:\n");
-    for (i = 0; i < 4; i++) {
-        printf("%lf %lf %lf %lf\n", T[i][0], T[i][1], T[i][2], T[i][3]);
-    }
-    return;
-}
-
-
-////计算笛卡尔坐标系下的HITEXO逆运动学
-void test_IKOnHITEXO() {
-    int JointNum = 7;
-//    double Slist[6][7] = {
-//            -1.0000, 0 - 0.5547, -1.0000, -0.5000, -0.5000, -0.5000,
-//            0, 0, 0, 0, 0, 0, 0,
-//            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
-//            0, 0, 277.4055, 0, -288.7071, -531.1871, -306.6900,
-//            0, 0, 264.1418, 0, -274.9030, -188.3030, -78.2246,
-//            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
-//    };
-
-    double Slist[6][7] = {
-            -1.0000, 0, -0.5547, -1.0000, -0.5000, -0.5000, -0.5000,
-            0, 0, 0, 0, 0, 0, 0,
-            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
-            0, 0, 277.4055, 0, -288.7071, -531.1871, -306.6900,
-            0, 0, 180.9318, 0, -188.3030, -188.3030, -118.7246,
-            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
-    };
-
-
-    double M[4][4] =
-            {
-                    1.0000, 0, 0, 613.3800,
-                    0, -0.8660, 0.5000, 154.9957,
-                    0, -0.5000, -0.8660, -485.9044,
-                    0, 0, 0, 1.0000,
-            };
-    double T[4][4] = {
-            0.0000, -1.0000, 0.0000, 179.9973,
-            -1.0000, -0.0000, -0.0000, -280.0043,
-            0.0000, -0.0000, -1.0000, -664.9956,
-            0, 0, 0, 1.0000,
-    };
-    double thetalist0[7] = {0, 0, 0, 0, 0, 0, 0};
-    double eomg = 1.0E-4;
-    double ev = 1.0E-3;
-    double thetalist[7] = {0};
-    int maxiter = 20;
-    int ret = IKinSpaceNR(JointNum, (double *) Slist, M, T, thetalist0, eomg, ev, maxiter, thetalist);
-    if (ret) {
-        printf("IKinSpace error %d\n", ret);
-        return;
-    }
-    printf("solution thetalist for C(单位：弧度):\n");
-    int i;
-    for (i = 0; i < JointNum; i++) {
-        printf("%lf, ", thetalist[i]);
-    }
-    printf("\n\n");
-    return;
-}
 
 ////输入一个旋转矩阵R,计算旋转矩阵相对于原坐标系(1,1,1)以哪个轴旋转，返回该轴的单位向量，并计算出旋转角度
 void test_RotToAxisAng() {
@@ -1123,6 +1010,216 @@ void test_LinePOInp() {
         MatrixCopy(thetalist, 6, 1, thetalist0);
         fprintf(fp1, "%lf %lf %lf %lf %lf %lf\n", thetalist[0], thetalist[1], thetalist[2], thetalist[3], thetalist[4],
                 thetalist[5]);
+    }
+    fclose(fp1);
+    return;
+}
+
+
+////将T4*4还原为六维空间向量
+void test_HITse3ToVec1() {
+    double V[6] = {0};
+    double se3Mat[4][4] = {
+            1.0000, 0, 0, 613.3800,
+            0, -0.8660, 0.5000, 154.9957,
+            0, -0.5000, -0.8660, -485.9044,
+            0, 0, 0, 1.0000,
+    };
+    se3ToVec(se3Mat, V);
+    int i;
+    printf("V:\n");
+    for (i = 0; i < 6; i++) {
+        printf("%lf\n", V[i]);
+    }
+    return;
+}
+
+
+////将T4*4还原为六维空间向量
+void test_HITse3ToVec2() {
+    double V[6] = {0};
+    double se3Mat[4][4] = {
+            0.000000, -0.999978, 0.000013, 179.997287,
+            -1.000000, -0.000000, 0.000000, -280.004300,
+            -0.000000, -0.000013, -0.999978, -664.995554,
+            0.000000, 0.000000, 0.000000, 1.000000,
+    };
+    se3ToVec(se3Mat, V);
+    int i;
+    printf("V:\n");
+    for (i = 0; i < 6; i++) {
+        printf("%lf\n", V[i]);
+    }
+    return;
+}
+
+
+////给定初始姿态M，给定Slist（相当于给定DH表），再给定theta，计算转动theta后的正解T (相对笛卡尔原点)
+void test_HITEXOFKinSpace() {
+    int i;
+    double M[4][4] =
+            {
+                    1.0000, 0, 0, 613.3800,
+                    0, -0.8660, 0.5000, 154.9957,
+                    0, -0.5000, -0.8660, -485.9044,
+                    0, 0, 0, 1.0000,
+            };
+
+    int JoinNum = 7;
+
+    double Slist[6][7] = {
+            0, 0, 0, 0, 0, 0, 0,
+            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
+            1.0000, 0, 0.5547, 1.0000, 0.5000, 0.5000, 0.5000,
+            0, 0, -180.9313, -0.0043, 188.2979, 188.2979, 108.7259,
+            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
+            0, 0, -277.4055, 0, 288.7071, 531.1871, 306.6900,
+    };
+    //double thetalist[7] = {0, 0, 0, 0, 0, 0, 0};
+    double thetalist[7] = {0, 30 * PI / 180, 0, -90 * PI / 180, 0, 0, 0};
+
+    printf("thetalist:\n");
+    for (i = 0; i < 7; i++) {
+        printf("%lf ", thetalist[i]);
+    }
+    printf("\n");
+    double T[4][4];
+    FKinSpace(M, JoinNum, (double *) Slist, thetalist, T);
+
+    printf("T:\n");
+    for (i = 0; i < 4; i++) {
+        printf("%lf %lf %lf %lf\n", T[i][0], T[i][1], T[i][2], T[i][3]);
+    }
+    return;
+}
+
+
+////计算笛卡尔坐标系下的HITEXO逆运动学
+void test_IKOnHITEXO() {
+    int JointNum = 7;
+    double Slist[6][7] = {
+            0, 0, 0, 0, 0, 0, 0,
+            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
+            1.0000, 0, 0.5547, 1.0000, 0.5000, 0.5000, 0.5000,
+            0, 0, -180.9313, -0.0043, 188.2979, 188.2979, 108.7259,
+            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
+            0, 0, -277.4055, 0, 288.7071, 531.1871, 306.6900,
+    };
+    double M[4][4] =
+            {
+                    1.0000, 0, 0, 613.3800,
+                    0, -0.8660, 0.5000, 154.9957,
+                    0, -0.5000, -0.8660, -485.9044,
+                    0, 0, 0, 1.0000,
+            };
+
+    double T[4][4] = {
+            0.000000, -0.999978, 0.000013, 179.997287,
+            -1.000000, -0.000000, 0.000000, -280.004300,
+            -0.000000, -0.000013, -0.999978, -664.995554,
+            0.000000, 0.000000, 0.000000, 1.000000,
+    };
+
+    double thetalist0[7] = {0, 0, 0, 0, 0, 0, 0};
+    double eomg = 1.0E-5;
+    double ev = 1.0E-5;
+    double thetalist[7] = {0};
+    int maxiter = 500;
+    int ret = IKinSpaceNR(JointNum, (double *) Slist, M, T, thetalist0, eomg, ev, maxiter, thetalist);
+    if (ret) {
+        printf("IKinSpace error %d\n", ret);
+        return;
+    }
+    printf("solution thetalist for C(单位：弧度):\n");
+    int i;
+    for (i = 0; i < JointNum; i++) {
+        printf("%lf, ", thetalist[i]);
+    }
+    printf("\n\n");
+    return;
+}
+
+
+////笛卡尔插补
+void test_HITLinePOInp() {
+
+    double p1[6] = {613.380000, 154.995700, -485.904400, -0.500000, 0, 0};
+    double p2[6] = {179.997287, -280.004300, -664.995554, -0.000013, 0.000013, -1.000000};
+    double Ti[4][4];
+    double dL = 1;
+    double dtheta = PI / 100;
+
+    LinePOParam pt;
+    InitialLinePOInpParam(p1, p2, &pt);
+    int JointNum = 7;
+    while (pt.InpFlag != 3) {
+        ////计算出每个插补矩阵T
+        LinePOInp(&pt, dL, dtheta, Ti);
+        int i;
+        for (i = 0; i < 4; i++) {
+            //printf("Ti:\n");
+            if  ((i)%4 == 0){
+                printf("Ti:\n");
+            }
+            printf("%lf %lf %lf %lf\n", Ti[i][0], Ti[i][1], Ti[i][2], Ti[i][3]);
+        }
+    }
+
+    return;
+}
+
+
+////笛卡尔插补+逆解
+void test_HITLinePOInp_IK() {
+    //double p1[6] = { 213.0,267.8,478.95,0,0,0 };
+    //double p2[6] = { 10,425,200, -PI / 2,0 ,0 };
+    //double p1[6] = { 10,425,200, -PI / 2,0 ,0 };
+    //double p2[6] = { -10,525,200,-PI / 4,0,-PI / 6 };
+
+    double p1[6] = {613.380000, 154.995700, -485.904400, -0.500000, 0, 0};
+    double p2[6] = {179.997287, -280.004300, -664.995554, -0.000013, 0.000013, -1.000000};
+    double Ti[4][4];
+    double dL = 1;
+    FILE *fp1;
+    int ret = fopen_s(&fp1, "LineTrajectory.txt", "w");
+    if (ret) {
+        printf("fopen_s error %d\n", ret);
+    }
+    LinePOParam pt;
+    InitialLinePOInpParam(p1, p2, &pt);
+    //double dtheta =pt.Orient.theta/(pt.Line.L / dL);
+    double dtheta = PI / 100;
+    int JointNum = 7;
+    double Slist[6][7] = {
+            0, 0, 0, 0, 0, 0, 0,
+            0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.8660,
+            1.0000, 0, 0.5547, 1.0000, 0.5000, 0.5000, 0.5000,
+            0, 0, -180.9313, -0.0043, 188.2979, 188.2979, 108.7259,
+            0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
+            0, 0, -277.4055, 0, 288.7071, 531.1871, 306.6900,
+    };
+    double M[4][4] =
+            {
+                    1.0000, 0, 0, 613.3800,
+                    0, -0.8660, 0.5000, 154.9957,
+                    0, -0.5000, -0.8660, -485.9044,
+                    0, 0, 0, 1.0000,
+            };
+    //double thetalist0[6] = { 0 };
+    double thetalist0[7] = {0, 0, 0, 0.05, 0, 0, 0};
+
+    double thetalist[7];
+    double eomg = 0.0001;
+    double ev = 0.001;
+    while (pt.InpFlag != 3) {
+        ////计算出每个插补矩阵T
+        LinePOInp(&pt, dL, dtheta, Ti);
+        ////数值逆解
+        IKinSpaceNR(JointNum, (double *) Slist, M, Ti, thetalist0, eomg, ev, 20, thetalist);
+        //MatrixCopy((double *)Ti, 4, 4, (double *)M);
+        MatrixCopy(thetalist, 7, 1, thetalist0);
+        fprintf(fp1, "%lf %lf %lf %lf %lf %lf\n", thetalist[0], thetalist[1], thetalist[2], thetalist[3], thetalist[4],
+                thetalist[5], thetalist[6]);
     }
     fclose(fp1);
     return;
