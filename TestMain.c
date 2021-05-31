@@ -19,7 +19,8 @@ int main()
 
     //do stuff
 
-    test_MatrixPinv67();
+    test_FKinSpace();
+    test_HITEXOFKinSpace();
 
     //end stuff
 
