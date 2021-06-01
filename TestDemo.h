@@ -92,6 +92,7 @@ void test_LinePathInp();
 
 void test_LinePOInp();
 
+////===========================
 void test_HITse3ToVec1();
 
 void test_HITse3ToVec2();
@@ -103,6 +104,16 @@ void test_IKOnHITEXO();
 void test_HITLinePOInp();
 
 void test_HITLinePOInp_IK();
+
+void test_1();
+
+void test_JacobBody7();
+
+void test_JacobianSpace7();
+
+////将T转换为p6（位移+俯仰）
+void test_Ttop6();
+
 
 
 #ifdef __cplusplus
