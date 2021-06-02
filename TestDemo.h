@@ -114,6 +114,16 @@ void test_JacobianSpace7();
 ////将T转换为p6（位移+俯仰）
 void test_Ttop6();
 
+void GaussJordanInv();
+
+static double argInit_real_T(void);
+
+static void argInit_6x6_real_T(double result[36]);
+
+void test_myInv();
+
+void test_InvJacoDLS();
+
 
 
 #ifdef __cplusplus

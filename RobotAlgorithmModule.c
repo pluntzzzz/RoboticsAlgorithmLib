@@ -128,6 +128,27 @@ void Matrix4Add(double a[][4], double b[][4], double c[][4]) {
     return;
 }
 
+
+/**
+*@brief Description:Calculate a 6 x 6  matrix add a 6 x 6  matrix.
+*@param[in]		a		a 6 x 6  matrix.
+*@param[in]		b		a 6 x 6  matrix.
+*@param[out]	c		result of a+b.
+*@return		No return value.
+*@note:
+*@warning:
+*/
+void Matrix6Add(double a[][6], double b[][6], double c[][6]) {
+    int i;
+    int j;
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 6; j++) {
+            c[i][j] = a[i][j] + b[i][j];
+        }
+    }
+    return;
+}
+
 /**
 *@brief Description:Calculate a 3 x 3  matrix Subtract a 3 x 3  matrix.
 *@param[in]		a		a 3 x 3  matrix.
@@ -213,6 +234,55 @@ void Matrix4Mult(double a[][4], double b[][4], double c[][4]) {
                 c[i][j] = c[i][j] + a[i][k] * b[k][j];
             }
 
+        }
+    }
+    return;
+}
+
+////矩阵相乘6*6
+void Matrix6Mult(double a[6][6], double b[6][6], double c[6][6]) {
+    int i;
+    int j;
+    int k;
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 6; j++) {
+            c[i][j] = 0.0;
+            for (k = 0; k < 6; k++) {
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+            }
+        }
+    }
+    return;
+}
+
+
+////矩阵相乘6*7 乘 7*6
+void Matrix67Mult(double a[6][7], double b[7][6], double c[6][6]) {
+    int i;
+    int j;
+    int k;
+    for (i = 0; i < 6; i++) {
+        for (j = 0; j < 6; j++) {
+            c[i][j] = 0.0;
+            for (k = 0; k < 7; k++) {
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+            }
+        }
+    }
+    return;
+}
+
+////矩阵相乘7*6 乘 6*6
+void Matrix76Mult(double a[7][6], double b[6][6], double c[7][6]) {
+    int i;
+    int j;
+    int k;
+    for (i = 0; i < 7; i++) {
+        for (j = 0; j < 6; j++) {
+            c[i][j] = 0.0;
+            for (k = 0; k < 6; k++) {
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+            }
         }
     }
     return;
@@ -1840,6 +1910,103 @@ int IKinSpaceNR(int JointNum, double *Slist, double M[4][4], double T[4][4], dou
     return ErrFlag;
 }
 
+////===========================================
+////计算笛卡尔坐标系下的逆运动学(使用dls求J逆)
+int
+IKinSpaceNR_DLS(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
+                int maxiter, double *thetalist) {
+    int i, j;
+    double Tsb[4][4];
+    double iTsb[4][4];
+    double Tbd[4][4];
+    double AdT[6][6];
+    double se3Mat[4][4];
+    double Vb[6];
+    double Vs[6];
+    int ErrFlag;
+    double *Js = (double *) malloc(JointNum * 6 * sizeof(double));
+    if (Js == NULL) {
+        return 2;
+    }
+    double *pJs = (double *) malloc(JointNum * 6 * sizeof(double));
+    if (pJs == NULL) {
+        free(Js);
+        return 2;
+    }
+    double *dtheta = (double *) malloc(JointNum * sizeof(double));
+    if (dtheta == NULL) {
+        free(Js);
+        free(pJs);
+        return 2;
+    }
+    MatrixCopy(thetalist0, JointNum, 1, thetalist);
+    FKinSpace(M, JointNum, (double *) Slist, thetalist, Tsb);
+    TransInv(Tsb, iTsb);
+    Matrix4Mult(iTsb, T, Tbd);
+    MatrixLog6(Tbd, se3Mat);
+    se3ToVec(se3Mat, Vb);//Vb旋转矢量
+    Adjoint(Tsb, AdT);//求Tsb的伴随矩阵AdT
+    MatrixMult((double *) AdT, 6, 6, Vb, 1, Vs);//Vs = AdT * Vb
+    ErrFlag = VecNorm2(3, &Vs[0]) > eomg || VecNorm2(3, &Vs[3]) > ev;
+    i = 0;
+
+#if(DEBUGMODE)
+    ///////////////////Debug///////////
+    printf("iteration:%4d  thetalist:  ", i);
+    int k;
+    for (k = 0; k < JointNum; k++) {
+        printf("%4.4lf, ", thetalist[k]);
+    }
+    printf("\n");
+    ////////////////////////////////////
+#endif
+    double J[6][7];
+    int *p = (int *) J;
+    double invJ_DLS[7][6];
+
+
+    while (ErrFlag && i < maxiter) {
+        //        MatrixPinv(Js, 6, JointNum, 2.2E-15, pJs);
+        JacobianSpace(JointNum, Slist, thetalist, Js);
+
+//        for (int i = 0; i < 6; i++) {
+//            for (int j = 0; j < 7; j++) {
+//                //&J[i][j] = Js[i*6 + j];
+//                Js = &J;
+//            }
+//        }
+        Js = (double *) &J;
+        InvJacoDLS(J, invJ_DLS);
+        MatrixMult((double *) invJ_DLS, JointNum, 6, Vs, 1, dtheta);
+        for (j = 0; j < JointNum; j++) {
+            thetalist[j] = thetalist[j] + dtheta[j];
+        }
+        i++;
+        FKinSpace(M, JointNum, Slist, thetalist, Tsb);
+        TransInv(Tsb, iTsb);
+        Matrix4Mult(iTsb, T, Tbd);
+        MatrixLog6(Tbd, se3Mat);
+        se3ToVec(se3Mat, Vb);
+        Adjoint(Tsb, AdT);
+        MatrixMult((double *) AdT, 6, 6, Vb, 1, Vs);
+        ErrFlag = VecNorm2(3, &Vs[0]) > eomg || VecNorm2(3, &Vs[3]) > ev;
+#if (DEBUGMODE)
+        ///////////////////////DEBUG///////////
+        printf("iteration:%4d  thetalist:  ", i);
+        for (k = 0; k < JointNum; k++) {
+            printf("%4.4lf, ", thetalist[k]);
+        }
+        printf("\n");
+        //////////////////////////////////////
+#endif
+
+    }
+    free(Js);
+    free(pJs);
+    free(dtheta);
+    return ErrFlag;
+}
+
 
 /**
 * @brief 			Description: Algorithm for Computing the ZYX Euler Angles according to rotation matrix.
@@ -2316,9 +2483,9 @@ void JacobBody7(double T01[4][4], double T02[4][4], double T03[4][4], double T04
     }
 
     double Jb[6][7];
-    double cross[3][7],cross1[3],cross2[3],cross3[3],cross4[3],cross5[3],cross6[3],cross7[3];
-    double a1[3],a2[3],a3[3],a4[3],a5[3],a6[3],a7[3];
-    double b1[3],b2[3],b3[3],b4[3],b5[3],b6[3],b7[3];
+    double cross[3][7], cross1[3], cross2[3], cross3[3], cross4[3], cross5[3], cross6[3], cross7[3];
+    double a1[3], a2[3], a3[3], a4[3], a5[3], a6[3], a7[3];
+    double b1[3], b2[3], b3[3], b4[3], b5[3], b6[3], b7[3];
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 7; j++) {
@@ -2342,21 +2509,197 @@ void JacobBody7(double T01[4][4], double T02[4][4], double T03[4][4], double T04
     }
 
     for (int i = 0; i < 3; i++) {
-        VectorProduct(a1,b1,cross1);
-        VectorProduct(a2,b2,cross2);
-        VectorProduct(a3,b3,cross3);
-        VectorProduct(a4,b4,cross4);
-        VectorProduct(a5,b5,cross5);
-        VectorProduct(a6,b6,cross6);
-        VectorProduct(a7,b7,cross7);
-        Jb[i+3][0] =cross1[i];
-        Jb[i+3][1] =cross2[i];
-        Jb[i+3][2] =cross3[i];
-        Jb[i+3][3] =cross4[i];
-        Jb[i+3][4] =cross5[i];
-        Jb[i+3][5] =cross6[i];
-        Jb[i+3][6] =cross7[i];
+        VectorProduct(a1, b1, cross1);
+        VectorProduct(a2, b2, cross2);
+        VectorProduct(a3, b3, cross3);
+        VectorProduct(a4, b4, cross4);
+        VectorProduct(a5, b5, cross5);
+        VectorProduct(a6, b6, cross6);
+        VectorProduct(a7, b7, cross7);
+        Jb[i + 3][0] = cross1[i];
+        Jb[i + 3][1] = cross2[i];
+        Jb[i + 3][2] = cross3[i];
+        Jb[i + 3][3] = cross4[i];
+        Jb[i + 3][4] = cross5[i];
+        Jb[i + 3][5] = cross6[i];
+        Jb[i + 3][6] = cross7[i];
     }
 
 
 }
+
+void myInv1(double A[36], double b_I[36]) {
+    double x[36];
+    double s;
+    double smax;
+    int b_i;
+    int b_tmp;
+    int i;
+    int i2;
+    int ix;
+    int iy;
+    int j;
+    int jA;
+    int jp1j;
+    int k;
+    int mmj_tmp;
+    signed char ipiv[6];
+    signed char p[6];
+    signed char i1;
+    for (i = 0; i < 36; i++) {
+        b_I[i] = 0.0;
+        x[i] = A[i];
+    }
+
+    for (i = 0; i < 6; i++) {
+        ipiv[i] = (signed char) (i + 1);
+    }
+
+    for (j = 0; j < 5; j++) {
+        mmj_tmp = 4 - j;
+        b_tmp = j * 7;
+        jp1j = b_tmp + 2;
+        iy = 6 - j;
+        jA = 0;
+        ix = b_tmp;
+        smax = fabs(x[b_tmp]);
+        for (k = 2; k <= iy; k++) {
+            ix++;
+            s = fabs(x[ix]);
+            if (s > smax) {
+                jA = k - 1;
+                smax = s;
+            }
+        }
+
+        if (x[b_tmp + jA] != 0.0) {
+            if (jA != 0) {
+                iy = j + jA;
+                ipiv[j] = (signed char) (iy + 1);
+                ix = j;
+                for (k = 0; k < 6; k++) {
+                    smax = x[ix];
+                    x[ix] = x[iy];
+                    x[iy] = smax;
+                    ix += 6;
+                    iy += 6;
+                }
+            }
+
+            i = (b_tmp - j) + 6;
+            for (b_i = jp1j; b_i <= i; b_i++) {
+                x[b_i - 1] /= x[b_tmp];
+            }
+        }
+
+        iy = b_tmp + 6;
+        jA = b_tmp;
+        for (jp1j = 0; jp1j <= mmj_tmp; jp1j++) {
+            smax = x[iy];
+            if (x[iy] != 0.0) {
+                ix = b_tmp + 1;
+                i = jA + 8;
+                i2 = (jA - j) + 12;
+                for (b_i = i; b_i <= i2; b_i++) {
+                    x[b_i - 1] += x[ix] * -smax;
+                    ix++;
+                }
+            }
+
+            iy += 6;
+            jA += 6;
+        }
+    }
+
+    for (i = 0; i < 6; i++) {
+        p[i] = (signed char) (i + 1);
+    }
+
+    for (k = 0; k < 5; k++) {
+        i1 = ipiv[k];
+        if (i1 > k + 1) {
+            iy = p[i1 - 1];
+            p[i1 - 1] = p[k];
+            p[k] = (signed char) iy;
+        }
+    }
+
+    for (k = 0; k < 6; k++) {
+        jp1j = 6 * (p[k] - 1);
+        b_I[k + jp1j] = 1.0;
+        for (j = k + 1; j < 7; j++) {
+            i = (j + jp1j) - 1;
+            if (b_I[i] != 0.0) {
+                i2 = j + 1;
+                for (b_i = i2; b_i < 7; b_i++) {
+                    iy = (b_i + jp1j) - 1;
+                    b_I[iy] -= b_I[i] * x[(b_i + 6 * (j - 1)) - 1];
+                }
+            }
+        }
+    }
+
+    for (j = 0; j < 6; j++) {
+        iy = 6 * j;
+        for (k = 5; k >= 0; k--) {
+            jA = 6 * k;
+            i = k + iy;
+            smax = b_I[i];
+            if (smax != 0.0) {
+                b_I[i] = smax / x[k + jA];
+                for (b_i = 0; b_i < k; b_i++) {
+                    jp1j = b_i + iy;
+                    b_I[jp1j] -= b_I[i] * x[b_i + jA];
+                }
+            }
+        }
+    }
+    return;
+}
+
+////INV JACOBIAN  DLS
+void InvJacoDLS(double J[6][7], double invJ_DLS[7][6]) {
+    double JT[7][6];
+    double JJT[6][6];
+    double JJTI[6][6];
+    double JJTI36[36];
+    double I[6][6] = {1, 0, 0, 0, 0, 0,
+                      0, 1, 0, 0, 0, 0,
+                      0, 0, 1, 0, 0, 0,
+                      0, 0, 0, 1, 0, 0,
+                      0, 0, 0, 0, 1, 0,
+                      0, 0, 0, 0, 0, 1};
+    MatrixT((double *) J, 6, 7, (double *) JT);
+
+////67 矩阵乘法
+    Matrix67Mult(J, JT, JJT);
+    ////MARTRIX ADD
+    Matrix6Add(JJT, I, JJTI);
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            JJTI36[i * 6 + j] = JJTI[i][j];
+        }
+        //printf("%lf %lf %lf %lf %lf %lf\n", InvJJTI[i][0], InvJJTI[i][1], InvJJTI[i][2], InvJJTI[i][3], InvJJTI[i][4], InvJJTI[i][5]);
+    }
+
+    double B[36];
+    double InvJJTI[6][6];
+    myInv1(JJTI36, B);
+    //printf("InvJJTI:\n");
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            InvJJTI[i][j] = B[i * 6 + j];
+        }
+        //printf("%lf %lf %lf %lf %lf %lf\n", InvJJTI[i][0], InvJJTI[i][1], InvJJTI[i][2], InvJJTI[i][3], InvJJTI[i][4], InvJJTI[i][5]);
+    }
+    Matrix76Mult(JT, InvJJTI, invJ_DLS);
+    printf("invJ_DLS:\n");
+    for (int i = 0; i < 7; i++) {
+        printf("%lf %lf %lf %lf %lf %lf\n", invJ_DLS[i][0], invJ_DLS[i][1], invJ_DLS[i][2], invJ_DLS[i][3],
+               invJ_DLS[i][4], invJ_DLS[i][5]);
+    }
+    return;
+}
+
+
+

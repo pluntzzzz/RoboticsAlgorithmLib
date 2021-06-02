@@ -10,6 +10,7 @@
  * @warning: 		
 */
 
+
 #include <stdio.h>
 #include <math.h>
 #include "RobotAlgorithmModule.h"
@@ -733,14 +734,15 @@ void test_IKinSpaceNR() {
 ////计算笛卡尔坐标系下的UR3逆运动学
 void test_IKOnUR3() {
     int JointNum = 6;
-    double Slist[6][6] = {
-            0, 0, 0, 0, 0, 0,
-            0, 1.0000, 1.0000, 1.0000, 0, 1.0000,
-            1.0000, 0, 0, 0, 1.0000, 0,
-            0, -151.9000, -395.5500, -395.5500, 110.4000, -478.9500,
-            0, 0, 0, 0, -213.0000, 0,
-            0, 0, 0, 213.0000, 0, 213.0000
-    };
+    double Slist[6][6] =
+            {
+                    0, 0, 0, 0, 0, 0,
+                    0, 1.0000, 1.0000, 1.0000, 0, 1.0000,
+                    1.0000, 0, 0, 0, 1.0000, 0,
+                    0, -151.9000, -395.5500, -395.5500, 110.4000, -478.9500,
+                    0, 0, 0, 0, -213.0000, 0,
+                    0, 0, 0, 213.0000, 0, 213.0000
+            };
     double M[4][4] =
             {
                     1, 0, 0, 213.0000,
@@ -748,14 +750,15 @@ void test_IKOnUR3() {
                     0, 0, 1, 478.9500,
                     0, 0, 0, 1,
             };
-    double T[4][4] = {
-            1, 0, 0, 10.0000,
-            0, 0, 1, 375.0000,
-            0, -1, 0, 200.0000,
-            0, 0, 0, 1.0000
-    };
+    double T[4][4] =
+            {
+                    1, 0, 0, 10.0000,
+                    0, 0, 1, 375.0000,
+                    0, -1, 0, 200.0000,
+                    0, 0, 0, 1.0000
+            };
 //    double thetalist0[6] = {0, 0, 0, 0, 0, 0};
-    double thetalist0[6] = {-1, -1, -0.127411, 0, 1.570768, 0};
+    double thetalist0[6] = {-1, -1, -1, 0, 1, -2};
     double eomg = 1.0E-4;
     double ev = 1.0E-4;
     double thetalist[6] = {0};
@@ -1059,13 +1062,12 @@ void test_HITse3ToVec2() {
 ////给定初始姿态M，给定Slist（相当于给定DH表），再给定theta，计算转动theta后的正解T (相对笛卡尔原点)
 void test_HITEXOFKinSpace() {
     int i;
-    double M[4][4] =
-            {
-                    1.0000, 0, 0, 613.3800,
-                    0, -0.8660, 0.5000, 154.9957,
-                    0, -0.5000, -0.8660, -485.9044,
-                    0, 0, 0, 1.0000,
-            };
+    double M[4][4] = {
+            0.000000, -0.999978, 0.000013, 179.997287,
+            -1.000000, -0.000000, 0.000000, -280.004300,
+            -0.000000, -0.000013, -0.999978, -664.995554,
+            0.000000, 0.000000, 0.000000, 1.000000,
+    };
 
     int JoinNum = 7;
 
@@ -1080,7 +1082,8 @@ void test_HITEXOFKinSpace() {
             };
 
     //double thetalist[7] = {0, 0, 0, 0, 0, 0, 0};
-    double thetalist[7] = {0, 30 * PI / 180, 0, -90 * PI / 180, 0, 0, 0};
+    double thetalist[7] = {1 * PI / 180, 1 * PI / 180, 1 * PI / 180, 1 * PI / 180, 1 * PI / 180, 1 * PI / 180,
+                           1 * PI / 180};
 
     printf("thetalist:\n");
     for (i = 0; i < 7; i++) {
@@ -1103,34 +1106,33 @@ void test_IKOnHITEXO() {
     int JointNum = 7;
     double Slist[6][7] =
             {
-                    0, 0, 0, 0, 0, 0, 0,
-                    0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.5,
-                    1.0000, 0, 0.5547, 1.0000, 0.5000, 0.5000, -0.8660,
-                    0, 0, -180.9318, -0.0046, 188.2981, 188.2981, 108.7264,
-                    0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
-                    0, 0, -277.4055, 0, 288.7071, 531.1871, 306.6900
+                    0.000000, 0.000000, 0.000000, 0.000000, 0.866000, 0.866000, 0.500000,
+                    0.000000, 1.000000, -0.832100, 0.000000, 0.000000, 0.000000, 0.000000,
+                    1.000000, 0.000000, 0.554700, 1.000000, 0.500000, 0.500000, -0.866000,
+                    0.000000, 0.000000, -180.931800, -0.004600, -0.002300, -140.002300, 242.484004,
+                    0.000000, 0.000000, -184.925900, -333.380000, -354.990400, -354.990400, 179.984664,
+                    0.000000, 0.000000, -277.405500, 0.000000, 0.004004, 242.484004, 140.002300
             };
-    double M[4][4] =
-            {
-                    1.0000, 0, 0, 613.3800,
-                    0, -0.8660, 0.5000, 154.9957,
-                    0, -0.5000, -0.8660, -485.9044,
-                    0, 0, 0, 1.0000,
-            };
+    double M[4][4] = {
+            0.000000, -0.999978, 0.000013, 179.997287,
+            -1.000000, -0.000000, 0.000000, -280.004300,
+            -0.000000, -0.000013, -0.999978, -664.995554,
+            0.000000, 0.000000, 0.000000, 1.000000,
+    };
 
     double T[4][4] = {
-            0.999538, -0.029403, 0.007755, 612.702442,
-            -0.029404, -0.869496, 0.493064, 154.315613,
-            -0.007755, -0.493064, -0.869958, -486.184394,
+            0.046916, -0.998002, -0.041805, 170.935232,
+            -0.998899, -0.046870, -0.002066, -280.263084,
+            0.000102, 0.041856, -0.999102, -657.265194,
             0.000000, 0.000000, 0.000000, 1.000000
     };
 
-    double thetalist0[7] = {0, 0, 0, 0, 0.0001, 0.0003, 0.0001};
+    double thetalist0[7] = {0, 0, 0, 0, 0, 0, 0};
     double eomg = 1.0E-5;
     double ev = 1.0E-5;
     double thetalist[7] = {0};
-    int maxiter = 500;
-    int ret = IKinSpaceNR(JointNum, (double *) Slist, M, T, thetalist0, eomg, ev, maxiter, thetalist);
+    int maxiter = 1000;
+    int ret = IKinSpaceNR_DLS(JointNum,  * Slist, M, T, thetalist0, eomg, ev, maxiter, thetalist);
     if (ret) {
         printf("IKinSpace error %d\n", ret);
         return;
@@ -1390,8 +1392,7 @@ void test_JacobianSpace7() {
             };
     //initial thetalist.
     //double thetalist[7] = {10* PI / 180, 10* PI / 180, 10* PI / 180, 10* PI / 180,10* PI / 180,10* PI / 180,10* PI / 180};
-    double thetalist[7] = {20 * PI / 180, 20 * PI / 180, 20 * PI / 180, 20 * PI / 180, 20 * PI / 180, 20 * PI / 180,
-                           20 * PI / 180};
+    double thetalist[7] = {0, 0 * PI / 180, 0, -90 * PI / 180, 0, 0, 0};
     double Js[6][7] = {{0}};
     JacobianSpace(JointNum, (double *) Slist, thetalist, (double *) Js);
 
@@ -1459,5 +1460,157 @@ void test_Ttop6() {
     printf("p2:\n");
     printf("%lf %lf %lf %lf %lf %lf\n", p2[0], p2[1], p2[2], p2[3], p2[4], p2[5]);
 
+    return;
+}
+
+void GaussJordanInv(){
+//    float **input,**Inverse,localVariable;
+//    float* temprow;
+//    int i,j,k,sizeOfMatrix;
+//
+//    printf("Enter matrix size. It's a square matrix. So enter value of n (nXn)\n");
+//    scanf("%d",&sizeOfMatrix);
+//
+//    input = (float **)malloc(sizeOfMatrix*sizeof(float *));
+//
+//    for(i=0;i<sizeOfMatrix;i++)
+//        input[i]=(float *)malloc(sizeOfMatrix*sizeof(float));
+//    temprow=(float*)malloc(sizeOfMatrix*sizeof(float));
+//    Inverse=(float **)malloc(sizeOfMatrix*sizeof(float *));
+//
+//    for(i=0;i<sizeOfMatrix;i++)
+//    {
+//
+//        Inverse[i]=(float *)malloc(sizeOfMatrix*sizeof(float));
+//    }
+//
+//    printf("Now enter the matrix:\n");
+//    for(i=0;i<sizeOfMatrix;i++)
+//        for(j=0;j<sizeOfMatrix;j++)
+//            scanf("%f",&input[i][j]);
+//
+//    for(i=0;i<sizeOfMatrix;i++)
+//        for(j=0;j<sizeOfMatrix;j++)
+//            if(i==j)
+//                Inverse[i][j]=1;
+//            else
+//                Inverse[i][j]=0;
+//
+//
+//    for(k=0;k<sizeOfMatrix;k++)
+//    {
+//        if(input[k][k]==0)
+//        {
+//            for(j=k+1; j<sizeOfMatrix; j++)
+//            {
+//                if(input[j][k]!=0)
+//                    break;
+//            }
+//
+//            if(j==sizeOfMatrix)
+//            {
+//                printf("\nMATRIX IS NOT INVERSIBLE\n\n");
+//                return ;
+//            }
+//            temprow=input[k];
+//            input[k]=input[j];
+//            input[j]=temprow;
+//            temprow=Inverse[k];
+//            Inverse[k]=Inverse[j];
+//            Inverse[j]=temprow;
+//        }
+//        localVariable=input[k][k];
+//        for(j=0;j<sizeOfMatrix;j++)
+//        {
+//            input[k][j]/=localVariable;
+//            Inverse[k][j]/=localVariable;
+//
+//        }
+//        for(i=0;i<sizeOfMatrix;i++)
+//        {
+//            localVariable = input[i][k];
+//            for(j=0;j<sizeOfMatrix;j++)
+//            {
+//                if(i==k)
+//                    break;
+//                input[i][j] -= input[k][j]*localVariable;
+//                Inverse[i][j] -= Inverse[k][j]*localVariable;
+//            }
+//        }
+//    }
+//
+//    printf("The inverse matrix is:\n");
+//
+//    for(i=0;i<sizeOfMatrix;i++)
+//    {
+//        for(j=0;j<sizeOfMatrix;j++)
+//            printf("%f	",Inverse[i][j]);
+//        printf("\n");
+//    }
+//    return ;
+}
+
+
+static double argInit_real_T(void)
+{
+    return 0.0;
+}
+
+
+static void argInit_6x6_real_T(double result[36])
+{
+    int idx0;
+    int idx1;
+
+    /* Loop over the array to initialize each element. */
+    for (idx0 = 0; idx0 < 6; idx0++) {
+        for (idx1 = 0; idx1 < 6; idx1++) {
+            /* Set the value of the array element.
+               Change this value to the value that the application requires. */
+            result[idx0 + 6 * idx1] = argInit_real_T();
+        }
+    }
+}
+
+void test_myInv() {
+    double A[36] = {1,3,6,9,8,7,
+                    2,2,3,3,6,4,
+                    1,4,5,6,3,8,
+                    4,7,2,1,6,9,
+                    1,2,3,6,8,4,
+                    2,6,3,7,8,1};
+
+    double B[36] ;
+    double InvA[6][6];
+    myInv1(A, B);
+    printf("B:\n");
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            InvA[i][j]  = B[i*6+j];
+        }
+//        printf("%lf %lf %lf %lf %lf %lf\n", B[i*6+0], B[i*6+1], B[i*6+2], B[i*6+3], B[i*6+4], B[i*6+5]);
+        printf("%lf %lf %lf %lf %lf %lf\n", InvA[i][0], InvA[i][1], InvA[i][2], InvA[i][3], InvA[i][4], InvA[i][5]);
+    }
+
+//    printf("InvA:\n");
+//    for (int i = 0; i < 6; i++) {
+//        printf("%lf %lf %lf %lf %lf %lf\n", InvA[i][0], InvA[i][1], InvA[i][2], InvA[i][3], InvA[i][4], InvA[i][5]);
+//    }
+
+    return;
+}
+
+void test_InvJacoDLS(){
+    double Slist[6][7] =
+            {
+                    0, 0, 0, 0, 0, 0, 0,
+                    0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.5,
+                    1.0000, 0, 0.5547, 1.0000, 0.5000, 0.5000, -0.8660,
+                    0, 0, -180.9318, -0.0046, 188.2981, 188.2981, 108.7264,
+                    0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
+                    0, 0, -277.4055, 0, 288.7071, 531.1871, 306.6900
+            };
+    double invJ_DLS[7][6];
+    InvJacoDLS(Slist,invJ_DLS);
     return;
 }

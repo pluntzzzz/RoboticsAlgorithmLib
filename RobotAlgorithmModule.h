@@ -87,6 +87,18 @@ void Matrix4Add(double a[][4], double b[][4], double c[][4]);
 
 
 /**
+*@brief Description:Calculate a 6 x 6  matrix add a 6 x 6  matrix.
+*@param[in]		a		a 6 x 6  matrix.
+*@param[in]		b		a 6 x 6  matrix.
+*@param[out]	c		result of a+b.
+*@return		No return value.
+*@note:
+*@warning:
+*/
+void Matrix6Add(double a[][6], double b[][6], double c[][6]);
+
+
+/**
 *@brief Description:Calculate a 3 x 3  matrix Subtract a 3 x 3  matrix.
 *@param[in]		a		a 3 x 3  matrix.
 *@param[in]		b		a 3 x 3  matrix.
@@ -129,6 +141,19 @@ void Matrix3Mult(double a[][3], double b[][3], double c[][3]);
 *@warning:
 */
 void Matrix4Mult(double a[][4], double b[][4], double c[][4]);
+
+
+////矩阵相乘6*6
+void Matrix6Mult(double a[6][6], double b[6][6], double c[6][6]);
+
+
+////矩阵相乘6*7 乘 7*6
+void Matrix67Mult(double a[6][7], double b[7][6], double c[6][6]);
+
+
+////矩阵相乘7*6 乘 6*6
+void Matrix76Mult(double a[7][6], double b[6][6], double c[7][6]);
+
 
 /**
 *@brief Description: Calculate  3 x 3  matrix multiply a value.
@@ -496,6 +521,9 @@ int IKinBodyNR(int JointNum, double *Blist, double M[4][4], double T[4][4], doub
 int IKinSpaceNR(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
                 int maxiter, double *thetalist);
 
+int IKinSpaceNR_DLS(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
+                    int maxiter, double *thetalist);
+
 
 /**
 * @brief 			Description: Algorithm for Computing the roll-pitch-yaw angles(rotate around fix reference X,Y,Z axis).
@@ -797,6 +825,13 @@ void JacobSpace7(double T01[4][4], double T02[4][4], double T03[4][4], double T0
 */
 void JacobBody7(double T01[4][4], double T02[4][4], double T03[4][4], double T04[4][4], double T05[4][4],
                  double T06[4][4], double T07[4][4], double Jb7[6][7]);
+
+////MATLAB INV
+void myInv1( double A[36], double b_I[36]);
+
+////INV JACOBIAN  DLS
+void InvJacoDLS( double J[6][7], double invJ_DLS[7][6]);
+
 #ifdef __cplusplus
 }
 #endif
