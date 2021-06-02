@@ -103,7 +103,11 @@ void test_IKOnHITEXO();
 
 void test_HITLinePOInp();
 
-void test_HITLinePOInp_IK();
+////笛卡尔插补+逆解  不更新J
+void test_HITLinePOInp_IK1();
+
+////笛卡尔插补+逆解  更新J
+void test_HITLinePOInp_IK2();
 
 void test_1();
 

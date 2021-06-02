@@ -35,7 +35,7 @@ int main() {
     //GaussJordanInv();
     //test_myInv();
     //test_InvJacoDLS();
-    test_HITLinePOInp_IK();
+    test_HITLinePOInp_IK1();
     //test_IKOnHITEXO();
     //end stuff
 

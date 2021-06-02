@@ -524,6 +524,9 @@ int IKinSpaceNR(int JointNum, double *Slist, double M[4][4], double T[4][4], dou
 int IKinSpaceNR_DLS(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
                     int maxiter, double *thetalist);
 
+int IKinSpaceNR_DLS_New(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
+                    int maxiter, double *thetalist);
+
 
 /**
 * @brief 			Description: Algorithm for Computing the roll-pitch-yaw angles(rotate around fix reference X,Y,Z axis).

@@ -1911,9 +1911,99 @@ int IKinSpaceNR(int JointNum, double *Slist, double M[4][4], double T[4][4], dou
 }
 
 ////===========================================
-////计算笛卡尔坐标系下的逆运动学(使用dls求J逆)
+////计算笛卡尔坐标系下的逆运动学(使用dls求J逆 不更新J)
 int
 IKinSpaceNR_DLS(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
+                int maxiter, double *thetalist) {
+    int i, j;
+    double Tsb[4][4];
+    double iTsb[4][4];
+    double Tbd[4][4];
+    double AdT[6][6];
+    double se3Mat[4][4];
+    double Vb[6];
+    double Vs[6];
+    int ErrFlag;
+    double *Js = (double *) malloc(JointNum * 6 * sizeof(double));
+    if (Js == NULL) {
+        return 2;
+    }
+    double *pJs = (double *) malloc(JointNum * 6 * sizeof(double));
+    if (pJs == NULL) {
+        free(Js);
+        return 2;
+    }
+    double *dtheta = (double *) malloc(JointNum * sizeof(double));
+    if (dtheta == NULL) {
+        free(Js);
+        free(pJs);
+        return 2;
+    }
+    MatrixCopy(thetalist0, JointNum, 1, thetalist);
+    FKinSpace(M, JointNum, (double *) Slist, thetalist, Tsb);
+    TransInv(Tsb, iTsb);
+    Matrix4Mult(iTsb, T, Tbd);
+    MatrixLog6(Tbd, se3Mat);
+    se3ToVec(se3Mat, Vb);//Vb旋转矢量
+    Adjoint(Tsb, AdT);//求Tsb的伴随矩阵AdT
+    MatrixMult((double *) AdT, 6, 6, Vb, 1, Vs);//Vs = AdT * Vb
+    ErrFlag = VecNorm2(3, &Vs[0]) > eomg || VecNorm2(3, &Vs[3]) > ev;
+    i = 0;
+
+#if(DEBUGMODE)
+    ///////////////////Debug///////////
+    printf("iteration:%4d  thetalist:  ", i);
+    int k;
+    for (k = 0; k < JointNum; k++) {
+        printf("%4.4lf, ", thetalist[k]);
+    }
+    printf("\n");
+    ////////////////////////////////////
+#endif
+    double J[6][7];
+    int *p = (int *) J;
+    double invJ_DLS[7][6];
+
+    while (ErrFlag && i < maxiter) {
+        //        MatrixPinv(Js, 6, JointNum, 2.2E-15, pJs);
+        JacobianSpace(JointNum, Slist, thetalist, Js);
+        Js = (double *) &J;
+        InvJacoDLS(J, invJ_DLS);
+        MatrixMult((double *) invJ_DLS, JointNum, 6, Vs, 1, dtheta);
+        for (j = 0; j < JointNum; j++) {
+            thetalist[j] = thetalist[j] + dtheta[j];
+        }
+        i++;
+        FKinSpace(M, JointNum, Slist, thetalist, Tsb);
+        TransInv(Tsb, iTsb);
+        Matrix4Mult(iTsb, T, Tbd);
+        MatrixLog6(Tbd, se3Mat);
+        se3ToVec(se3Mat, Vb);
+        Adjoint(Tsb, AdT);
+        MatrixMult((double *) AdT, 6, 6, Vb, 1, Vs);
+        ErrFlag = VecNorm2(3, &Vs[0]) > eomg || VecNorm2(3, &Vs[3]) > ev;
+#if (DEBUGMODE)
+        ///////////////////////DEBUG///////////
+        printf("iteration:%4d  thetalist:  ", i);
+        for (k = 0; k < JointNum; k++) {
+            printf("%4.4lf, ", thetalist[k]);
+        }
+        printf("\n");
+        //////////////////////////////////////
+#endif
+
+    }
+    free(Js);
+    free(pJs);
+    free(dtheta);
+    return ErrFlag;
+}
+
+
+////===========================================
+////计算笛卡尔坐标系下的逆运动学(使用dls求J逆 更新J)
+int
+IKinSpaceNR_DLS_New(int JointNum, double *Slist, double M[4][4], double T[4][4], double *thetalist0, double eomg, double ev,
                 int maxiter, double *thetalist) {
     int i, j;
     double Tsb[4][4];
