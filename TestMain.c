@@ -13,30 +13,31 @@
 #include "TestDemo.h"
 #include <sys/time.h>
 #include <stdio.h>
-int main()
-{
+
+int main() {
     struct timeval stop, start;
     gettimeofday(&start, NULL);
 
     //do stuff
 //    test_IKinSpaceNR();
     //test_HITEXOFKinSpace();
-    //test_IKOnUR3();
+    // test_IKOnUR3();
 //    test_IKOnHITEXO();
 //    test_LinePOInp();
 //    test_HITse3ToVec1();
 //    test_HITse3ToVec2();
-   // test_HITLinePOInp();
+    //   test_HITLinePOInp();
 //    test_1();
 //    test_JacobBody7();
     //test_JacobianSpace7();
     //test_Ttop6();
-    //test_HITLinePOInp_IK();
+
     //GaussJordanInv();
     //test_myInv();
     //test_InvJacoDLS();
-    test_IKOnHITEXO();
-        //end stuff
+    test_HITLinePOInp_IK();
+    //test_IKOnHITEXO();
+    //end stuff
 
     gettimeofday(&stop, NULL);
     printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);

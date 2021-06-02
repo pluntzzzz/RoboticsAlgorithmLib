@@ -1131,7 +1131,7 @@ void test_IKOnHITEXO() {
     double eomg = 1.0E-5;
     double ev = 1.0E-5;
     double thetalist[7] = {0};
-    int maxiter = 1000;
+    int maxiter = 50;
     int ret = IKinSpaceNR_DLS(JointNum,  * Slist, M, T, thetalist0, eomg, ev, maxiter, thetalist);
     if (ret) {
         printf("IKinSpace error %d\n", ret);
@@ -1182,17 +1182,25 @@ void test_HITLinePOInp_IK() {
 //    MatrixLog6(double T[4][4], double se3Mat[4][4]);
 //    ////将SE3转换成六维空间向量
 //    se3ToVec(double se3Mat[4][4], double V[6]);
-
+    ////初始姿态
+    double M[4][4] =
+            {
+                    0.000000, -0.999978, 0.000013, 179.997287,
+                    -1.000000, -0.000000, 0.000000, -280.004300,
+                    -0.000000, -0.000013, -0.999978, -664.995554,
+                    0.000000, 0.000000, 0.000000, 1.000000,
+            };
+    ////期望姿态
+    double T[4][4] = {
+            0.000000, -0.999978, 0.000013, 169.997287,
+            -1.000000, -0.000000, 0.000000, -240.004300,
+            -0.000000, -0.000013, -0.999978, -634.995554,
+            0.000000, 0.000000, 0.000000, 1.000000,
+    };
     double R[3][3], p[3];
     double roll, pitch, yaw;
     double p1[6], p2[6];
-    double M[4][4] =
-            {
-                    1.0000, 0, 0, 613.3800,
-                    0, -0.8660, 0.5000, 154.9957,
-                    0, -0.5000, -0.8660, -485.9044,
-                    0, 0, 0, 1.0000,
-            };
+
     ////把T还原回平移与旋转旋量
     TransToRp(M, R, p);
     ////将roll, pitch, yaw 三个角度转换为R
@@ -1207,13 +1215,6 @@ void test_HITLinePOInp_IK() {
     printf("p1:\n");
     printf("%lf %lf %lf %lf %lf %lf\n", p1[0], p1[1], p1[2], p1[3], p1[4], p1[5]);
 
-
-    double T[4][4] = {
-            0.000000, -0.999978, 0.000013, 179.997287,
-            -1.000000, -0.000000, 0.000000, -280.004300,
-            -0.000000, -0.000013, -0.999978, -664.995554,
-            0.000000, 0.000000, 0.000000, 1.000000,
-    };
     ////把T还原回平移与旋转旋量
     TransToRp(T, R, p);
     ////将roll, pitch, yaw 三个角度转换为R
@@ -1242,18 +1243,18 @@ void test_HITLinePOInp_IK() {
     int JointNum = 7;
     double Slist[6][7] =
             {
-                    0, 0, 0, 0, 0, 0, 0,
-                    0, 1.0000, -0.8321, 0, 0.8660, 0.8660, 0.5,
-                    1.0000, 0, 0.5547, 1.0000, 0.5000, 0.5000, -0.8660,
-                    0, 0, -180.9318, -0.0046, 188.2981, 188.2981, 108.7264,
-                    0, 0, -184.9259, -333.3800, -166.6900, -306.6900, 531.1871,
-                    0, 0, -277.4055, 0, 288.7071, 531.1871, 306.6900
+                    0.000000, 0.000000, 0.000000, 0.000000, 0.866000, 0.866000, 0.500000,
+                    0.000000, 1.000000, -0.832100, 0.000000, 0.000000, 0.000000, 0.000000,
+                    1.000000, 0.000000, 0.554700, 1.000000, 0.500000, 0.500000, -0.866000,
+                    0.000000, 0.000000, -180.931800, -0.004600, -0.002300, -140.002300, 242.484004,
+                    0.000000, 0.000000, -184.925900, -333.380000, -354.990400, -354.990400, 179.984664,
+                    0.000000, 0.000000, -277.405500, 0.000000, 0.004004, 242.484004, 140.002300
             };
 
-    double thetalist0[7] = {0, -0.001, 0, 0, 0, 0, 0};
+    double thetalist0[7] = {0, 0, 0, 0, 0, 0, 0};
     double thetalist[7];
     double eomg = 0.0001;
-    double ev = 0.001;
+    double ev = 0.0001;
     while (pt.InpFlag != 3) {
         ////计算出每个插补矩阵T
         LinePOInp(&pt, dL, dtheta, Ti);
@@ -1264,11 +1265,14 @@ void test_HITLinePOInp_IK() {
             printf("%lf %lf %lf %lf\n", Ti[i][0], Ti[i][1], Ti[i][2], Ti[i][3]);
         }
         ////数值逆解
-        IKinSpaceNR(JointNum, (double *) Slist, M, Ti, thetalist0, eomg, ev, 20, thetalist);
-        //MatrixCopy((double *)Ti, 4, 4, (double *)M);
+        IKinSpaceNR_DLS(JointNum, (double *) Slist, M, Ti, thetalist0, eomg, ev, 20, thetalist);
         MatrixCopy(thetalist, 7, 1, thetalist0);
-        fprintf(fp1, "%lf %lf %lf %lf %lf %lf\n", thetalist[0], thetalist[1], thetalist[2], thetalist[3], thetalist[4],
-                thetalist[5], thetalist[6]);
+        printf("solution thetalist for C(单位：弧度):\n");
+        int i;
+        for (i = 0; i < JointNum; i++) {
+            printf("%lf, ", thetalist[i]);
+        }
+        printf("\n\n");
     }
     fclose(fp1);
     return;

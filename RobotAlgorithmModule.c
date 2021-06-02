@@ -1964,17 +1964,9 @@ IKinSpaceNR_DLS(int JointNum, double *Slist, double M[4][4], double T[4][4], dou
     int *p = (int *) J;
     double invJ_DLS[7][6];
 
-
     while (ErrFlag && i < maxiter) {
         //        MatrixPinv(Js, 6, JointNum, 2.2E-15, pJs);
         JacobianSpace(JointNum, Slist, thetalist, Js);
-
-//        for (int i = 0; i < 6; i++) {
-//            for (int j = 0; j < 7; j++) {
-//                //&J[i][j] = Js[i*6 + j];
-//                Js = &J;
-//            }
-//        }
         Js = (double *) &J;
         InvJacoDLS(J, invJ_DLS);
         MatrixMult((double *) invJ_DLS, JointNum, 6, Vs, 1, dtheta);
@@ -2693,11 +2685,11 @@ void InvJacoDLS(double J[6][7], double invJ_DLS[7][6]) {
         //printf("%lf %lf %lf %lf %lf %lf\n", InvJJTI[i][0], InvJJTI[i][1], InvJJTI[i][2], InvJJTI[i][3], InvJJTI[i][4], InvJJTI[i][5]);
     }
     Matrix76Mult(JT, InvJJTI, invJ_DLS);
-    printf("invJ_DLS:\n");
-    for (int i = 0; i < 7; i++) {
-        printf("%lf %lf %lf %lf %lf %lf\n", invJ_DLS[i][0], invJ_DLS[i][1], invJ_DLS[i][2], invJ_DLS[i][3],
-               invJ_DLS[i][4], invJ_DLS[i][5]);
-    }
+//    printf("invJ_DLS:\n");
+//    for (int i = 0; i < 7; i++) {
+//        printf("%lf %lf %lf %lf %lf %lf\n", invJ_DLS[i][0], invJ_DLS[i][1], invJ_DLS[i][2], invJ_DLS[i][3],
+//               invJ_DLS[i][4], invJ_DLS[i][5]);
+//    }
     return;
 }
 
